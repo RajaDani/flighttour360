@@ -1,24 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import Dashboard from './components/Dashboard';
+import Airlines from './components/airlines';
+import Flights from './components/flights';
+import Navbar from './navigation/Navbar';
+import { Routes, Route, Navigate, BrowserRouter as Router } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import customTheme from './muiConfig';
+import Airports from './components/airports';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={customTheme} >
+      <div className='flex'>
+        <Router>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/flights" element={<Flights />} />
+            <Route path="/airlines" element={<Airlines />} />
+            <Route path="/airports" element={<Airports />} />
+          </Routes>
+        </Router>
+      </div>
+    </ThemeProvider>
   );
 }
 
