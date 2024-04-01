@@ -2,7 +2,7 @@ import * as React from 'react';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiDrawer from '@mui/material/Drawer';
-import Box from '@mui/material/Box';
+import { Box, MenuItem, Menu, Tooltip, Avatar } from '@mui/material';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
@@ -17,7 +17,7 @@ import { navList } from './navList';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { Link } from 'react-router-dom';
-
+import FlightIcon from '@mui/icons-material/Flight';
 
 const drawerWidth = 300;
 
@@ -69,11 +69,22 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 export default function Navbar() {
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const openProfile = anchorEl;
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
     const [open, setOpen] = React.useState(true);
-    const [selected, setSelected] = React.useState();
+    const [selected, setSelected] = React.useState("Dashboard");
     const toggleDrawer = () => {
         setOpen(!open);
     };
+
+    const admin = JSON.parse(localStorage.getItem("adminData"));
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -106,17 +117,71 @@ export default function Navbar() {
                         >
 
                         </Typography>
-                        <IconButton color="inherit">
-                            <Badge badgeContent={4} color="secondary">
-                                <NotificationsIcon />
-                            </Badge>
-                        </IconButton>
+
+                        <Typography>{admin?.name}</Typography>
+
+                        <Tooltip title="Account settings">
+                            <IconButton
+                                onClick={handleClick}
+                                size="small"
+                                sx={{ ml: 2 }}
+                                aria-controls={openProfile ? 'account-menu' : undefined}
+                                aria-haspopup="true"
+                                aria-expanded={openProfile ? 'true' : undefined}
+                            >
+                                <Avatar sx={{ width: 32, height: 32 }}>{admin?.name.slice(0, 1)}</Avatar>
+                            </IconButton>
+                        </Tooltip>
+                        <Menu
+                            anchorEl={anchorEl}
+                            id="account-menu"
+                            open={openProfile}
+                            onClose={handleClose}
+                            onClick={handleClose}
+                            PaperProps={{
+                                elevation: 0,
+                                sx: {
+                                    overflow: 'visible',
+                                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                                    mt: 1.5,
+                                    '& .MuiAvatar-root': {
+                                        width: 32,
+                                        height: 32,
+                                        ml: -0.5,
+                                        mr: 1,
+                                    },
+                                    '&::before': {
+                                        content: '""',
+                                        display: 'block',
+                                        position: 'absolute',
+                                        top: 0,
+                                        right: 14,
+                                        width: 10,
+                                        height: 10,
+                                        bgcolor: 'background.paper',
+                                        transform: 'translateY(-50%) rotate(45deg)',
+                                        zIndex: 0,
+                                    },
+                                },
+                            }}
+                            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                        >
+                            <MenuItem onClick={() => {
+                                localStorage.clear();
+                            }}>
+                                <Link to="/login" className='flex items-center'>   <Avatar /> Logout</Link>
+                            </MenuItem>
+                        </Menu>
                     </Toolbar>
                 </AppBar>
                 <Drawer variant="permanent" open={open}>
                     <Toolbar className='flex justify-between items-center'
                     >
-                        <Typography className="font-bold text-lg text-blue-800">FlightTour360</Typography>
+                        <Box className="flex items-center">
+                            <FlightIcon color='primary' />
+                            <Typography className="font-bold text-lg text-blue-800 pl-3">FlightTour360</Typography>
+                        </Box>
                         <IconButton onClick={toggleDrawer}>
                             <ChevronLeftIcon />
                         </IconButton>
@@ -125,13 +190,17 @@ export default function Navbar() {
                     <List component="nav">
                         {navList.map((x) =>
                             <Link to={x.link}>
-                                <ListItemButton sx={{
-                                    ml: 2, mr: 2, '&:focus': {
+                                <ListItemButton onClick={() => setSelected(x.name)} sx={{
+                                    ml: 2, mr: 2,
+                                    backgroundColor: `${selected === x.name ? '#4d84e3' : "#fff"}`,
+                                    borderRadius: 2,
+                                    color: `${selected === x.name ? "white" : '#444'}`,
+                                    '&:hover': {
                                         backgroundColor: '#4d84e3',
                                         borderRadius: 2,
-                                        text: "white"
+                                        color: "white"
                                     },
-                                }} id="list" className='hover:text-blue-500 focus:text-white rounded-lg'>
+                                }} id="list" className=' rounded-lg'>
                                     {x.icon}
                                     <ListItemText className='ml-6' primary={x.name} />
                                 </ListItemButton>

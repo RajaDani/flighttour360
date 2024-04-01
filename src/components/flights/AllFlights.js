@@ -16,7 +16,7 @@ import {
     TableHead,
     TableRow,
     Paper,
-    InputAdornment,
+    Autocomplete,
     TextField,
     TablePagination,
 } from "@mui/material";
@@ -24,16 +24,73 @@ import SearchIcon from '@mui/icons-material/Search';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import Swal from 'sweetalert2'
+import UpdateDialog from './UpdateDialog';
+import { baseurl } from "../shared/baseUrl";
+import { countriesList } from "../shared/countryList";
+import Chip from '@mui/material/Chip';
 
 export default function AllFlights(props) {
-    // const router = useRouter();
-    // const pathname = usePathname();
 
     const [data, setData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
     const [searchText, setSearchText] = useState("");
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [open, setOpen] = React.useState(false);
+    const [openUpdate, setOpenUpdate] = React.useState(false);
+    const [flightData, setFlightData] = useState({
+        plane_id: "",
+        departure_time: "",
+        arrival_time: "",
+        total_seats: true
+    });
+    const [updateData, setUpdateData] = useState();
+    const [planesData, setPlanesData] = useState();
+
+    async function getFlights() {
+        const response = await fetch(`${baseurl}/flights`);
+        const flights = await response.json();
+        setData(flights.data);
+        setFilteredData(flights.data);
+    }
+
+    async function getPlanes() {
+        const response = await fetch(`${baseurl}/planes`);
+        const planes = await response.json();
+        setPlanesData(planes.data);
+    }
+
+    async function addFlight() {
+        await fetch(`${baseurl}/flight/add`,
+            {
+                headers: { 'Content-Type': 'application/json' },
+                method: "POST",
+                body: JSON.stringify(flightData)
+            }).then((res) => {
+                if (res.status === 200) {
+                    Swal.fire({
+                        title: "Success",
+                        text: "Flight added successfully!",
+                        icon: "success"
+                    });
+                    getFlights()
+                    handleClose();
+                }
+                else {
+                    Swal.fire({
+                        title: "Error",
+                        text: "Something went wrong!",
+                        icon: "error"
+                    });
+                }
+            })
+    }
+
+    useEffect(() => {
+        getFlights();
+        getPlanes();
+    }, [])
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -52,6 +109,14 @@ export default function AllFlights(props) {
         setPage(0);
     };
 
+    function handleDateTime(val) {
+        var datetime = new Date(val);
+        datetime.setHours(datetime.getHours() + 5);
+        var formattedDatetime = datetime.toISOString().slice(0, 16).replace("T", " ");
+
+        return formattedDatetime;
+    }
+
     return (
         <>
             <Box className="mt-8 pl-5 pr-5 mb-6">
@@ -65,24 +130,6 @@ export default function AllFlights(props) {
                         <p className="text-2xl font-bold ">
                             All Flights
                         </p>
-                        <Paper
-                            className="flex items-center px-2 py-2 rounded-full shadow-md ml-6"
-                            sx={{ width: 500, border: "1px solid gray", borderRadius: 10 }}
-                        >
-                            <SearchIcon className="ml-4" />
-
-                            <Input
-                                placeholder="Search airline by name"
-                                className="flex flex-1 mx-8"
-                                disableUnderline
-                                fullWidth
-                                value={searchText}
-                                inputProps={{
-                                    "aria-label": "Search",
-                                }}
-                                onChange={(e) => setSearchText(e.target.value)}
-                            />
-                        </Paper>
                     </Grid>
                     <Grid item md={2} xs={3}>
                         <Button
@@ -90,7 +137,8 @@ export default function AllFlights(props) {
                                 float: "right",
                                 color: "white",
                                 backgroundColor: "#4070bd !important",
-                                borderRadius: 5
+                                borderRadius: 5,
+                                p: 1
                             }}
                             onClick={() => setOpen(true)}
                             className="p-3 w-28 sm:w-24 md:w-40 2xl:w-48 float-right mr-6 bg-gray-500 text-white text-16 font-bold rounded-full"
@@ -106,15 +154,23 @@ export default function AllFlights(props) {
                     className="border-2 shadow-xl rounded-2 mt-8"
                 >
                     <Table stickyHeader sx={{ minWidth: 650 }}>
-                        <TableHead sx={{ backgroundColor: "blue" }}>
-                            <TableRow >
-                                <TableCell className="bg-ar text-white">Name</TableCell>
-                                <TableCell className="bg-ar text-white">Status</TableCell>
+                        <TableHead sx={{
+                            "& th": {
+                                color: "white",
+                                backgroundColor: "#4070bd"
+                            }
+                        }}>
+                            <TableRow>
+                                <TableCell className="bg-ar text-white">Plane</TableCell>
+                                <TableCell className="bg-ar text-white">Airline</TableCell>
+                                <TableCell className="bg-ar text-white">Departure Time</TableCell>
+                                <TableCell className="bg-ar text-white">Arrival Time</TableCell>
+                                <TableCell className="bg-ar text-white">Total Seats</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {data &&
-                                data
+                            {filteredData &&
+                                filteredData
                                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                     .map((x) => (
                                         <TableRow
@@ -124,11 +180,18 @@ export default function AllFlights(props) {
                                                 cursor: "pointer",
                                                 height: 30,
                                             }}
+                                            onClick={() => {
+                                                setOpenUpdate(true);
+                                                setUpdateData(x)
+                                            }}
                                         >
                                             <TableCell component="th" scope="row">
                                                 {x.name}
                                             </TableCell>
-                                            <TableCell>{x.status}</TableCell>
+                                            <TableCell>{x.airline}</TableCell>
+                                            <TableCell>{handleDateTime(x.departure_time)}</TableCell>
+                                            <TableCell>{handleDateTime(x.arrival_time)}</TableCell>
+                                            <TableCell>{x.total_seats}</TableCell>
                                         </TableRow>
                                     ))}
                         </TableBody>
@@ -152,18 +215,62 @@ export default function AllFlights(props) {
                 fullWidth
             >
                 <DialogTitle id="alert-dialog-title" className="text-center font-bold">
-                    <p className="text-center font-bold text-xl"> {"Add New Airline"}</p>
+                    <p className="text-center font-bold text-xl "> {"Add New Flight"}</p>
                 </DialogTitle>
                 <DialogContent>
-                    <TextField fullWidth id="outlined-basic" label="Airline Name" variant="outlined" />
+                    <Autocomplete
+                        sx={{ mt: 2 }}
+                        id="country-customized-option-demo"
+                        options={planesData && planesData.map((x) => x.name)}
+                        onChange={(e, newValue) => {
+                            const { id } = planesData.find((x) => x.name === newValue);
+                            setFlightData({ ...flightData, plane_id: id })
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Plane" />}
+                    />
+                    <TextField
+                        sx={{ mt: 2 }}
+                        onChange={(e) => setFlightData({ ...flightData, departure_time: e.target.value })}
+                        fullWidth
+                        type="datetime-local"
+                        id="outlined-basic"
+                        label="Departure datetime"
+                        variant="outlined"
+                    />
+                    <TextField
+                        sx={{ mt: 2 }}
+                        onChange={(e) => setFlightData({ ...flightData, arrival_time: e.target.value })}
+                        fullWidth
+                        type="datetime-local"
+                        id="outlined-basic"
+                        label="Arrival datetime"
+                        variant="outlined"
+                    />
+                    <TextField
+                        sx={{ mt: 2 }}
+                        onChange={(e) => setFlightData({ ...flightData, total_seats: e.target.value })}
+                        fullWidth
+                        type="number"
+                        id="outlined-basic"
+                        label="Total Seats"
+                        variant="outlined"
+                    />
                 </DialogContent>
                 <Box className="flex justify-center items-center mb-4">
-                    <Button variant="contained" color="secondary" sx={{ borderRadius: 2 }} onClick={handleClose}>Cancel</Button>
-                    <Button variant="contained" color="success" sx={{ ml: 1, borderRadius: 2 }} onClick={handleClose} autoFocus>
+                    <Button variant="contained" color="secondary" sx={{ borderRadius: 10 }} onClick={handleClose}>Cancel</Button>
+                    <Button variant="contained" color="success" sx={{ ml: 1, borderRadius: 10 }} onClick={addFlight} autoFocus>
                         Add
                     </Button>
                 </Box>
             </Dialog>
+
+            <UpdateDialog data={updateData} open={openUpdate}
+                handleUpdateDialog={() => {
+                    setOpenUpdate(!openUpdate);
+                    getFlights();
+                }}
+                planes={planesData}
+            />
         </>
     );
 }

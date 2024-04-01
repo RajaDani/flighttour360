@@ -27,10 +27,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Swal from 'sweetalert2'
 import UpdateDialog from './UpdateDialog';
 import { baseurl } from "../shared/baseUrl";
-import { countriesList } from "../shared/countryList";
 import Chip from '@mui/material/Chip';
 
-export default function AllAirlines(props) {
+export default function AllPlanes(props) {
 
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -39,35 +38,41 @@ export default function AllAirlines(props) {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [open, setOpen] = React.useState(false);
     const [openUpdate, setOpenUpdate] = React.useState(false);
-    const [airlineData, setAirlineData] = useState({
+    const [planeData, setPlaneData] = useState({
         name: "",
-        code: "",
-        country: "",
-        status: true
+        total_seats: "",
+        airline_id: "",
     });
     const [updateData, setUpdateData] = useState();
+    const [airlinesData, setAirlinesData] = useState();
+
+    async function getPlanes() {
+        const response = await fetch(`${baseurl}/planes`);
+        const planes = await response.json();
+        setData(planes.data);
+        setFilteredData(planes.data);
+    }
 
     async function getAirlines() {
         const response = await fetch(`${baseurl}/airlines`);
         const flights = await response.json();
-        setData(flights.data);
-        setFilteredData(flights.data);
+        setAirlinesData(flights.data);
     }
 
-    async function addAirline() {
-        await fetch(`${baseurl}/airline/add`,
+    async function addPlane() {
+        await fetch(`${baseurl}/plane/add`,
             {
                 headers: { 'Content-Type': 'application/json' },
                 method: "POST",
-                body: JSON.stringify(airlineData)
+                body: JSON.stringify(planeData)
             }).then((res) => {
                 if (res.status === 200) {
                     Swal.fire({
                         title: "Success",
-                        text: "Airline added successfully!",
+                        text: "Plane added successfully!",
                         icon: "success"
                     });
-                    getAirlines()
+                    getPlanes()
                     handleClose();
                 }
                 else {
@@ -81,6 +86,7 @@ export default function AllAirlines(props) {
     }
 
     useEffect(() => {
+        getPlanes();
         getAirlines();
     }, [])
 
@@ -117,7 +123,7 @@ export default function AllAirlines(props) {
                         className="flex items-center xs:justify-between lg:justify-center pl-2 md:pl-16"
                     >
                         <p className="text-2xl font-bold ">
-                            All Airlines
+                            All Planes
                         </p>
                         <Paper
                             className="flex items-center px-2 py-2 rounded-full shadow-md ml-6"
@@ -126,7 +132,7 @@ export default function AllAirlines(props) {
                             <SearchIcon className="ml-4" />
 
                             <Input
-                                placeholder="Search airline by name"
+                                placeholder="Search plane by name"
                                 className="flex flex-1 mx-8"
                                 disableUnderline
                                 fullWidth
@@ -168,10 +174,9 @@ export default function AllAirlines(props) {
                             }
                         }}>
                             <TableRow>
-                                <TableCell className="bg-ar text-white">Airline Name</TableCell>
-                                <TableCell className="bg-ar text-white">Airline Code</TableCell>
-                                <TableCell className="bg-ar text-white">Country</TableCell>
-                                <TableCell className="bg-ar text-white">Status</TableCell>
+                                <TableCell className="bg-ar text-white">Plane Name</TableCell>
+                                <TableCell className="bg-ar text-white">Total Seats</TableCell>
+                                <TableCell className="bg-ar text-white">Airline</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -194,9 +199,8 @@ export default function AllAirlines(props) {
                                             <TableCell component="th" scope="row">
                                                 {x.name}
                                             </TableCell>
-                                            <TableCell>{x.code}</TableCell>
-                                            <TableCell>{x.country}</TableCell>
-                                            <TableCell>{<Chip color={x?.status ? "success" : "warning"} label={x?.status ? "Active" : "In-active"} />}</TableCell>
+                                            <TableCell>{x.total_seats}</TableCell>
+                                            <TableCell>{x.airline}</TableCell>
                                         </TableRow>
                                     ))}
                         </TableBody>
@@ -220,39 +224,41 @@ export default function AllAirlines(props) {
                 fullWidth
             >
                 <DialogTitle id="alert-dialog-title" className="text-center font-bold">
-                    <p className="text-center font-bold text-xl "> {"Add New Airline"}</p>
+                    <p className="text-center font-bold text-xl "> {"Add New Plane"}</p>
                 </DialogTitle>
                 <DialogContent>
                     <TextField
                         sx={{ mt: 1 }}
-                        onChange={(e) => setAirlineData({ ...airlineData, name: e.target.value })}
+                        onChange={(e) => setPlaneData({ ...planeData, name: e.target.value })}
                         fullWidth
                         id="outlined-basic"
-                        label="Airline Name"
+                        label="Plane Name"
                         variant="outlined"
                     />
                     <TextField
                         sx={{ mt: 2 }}
-                        onChange={(e) => setAirlineData({ ...airlineData, code: e.target.value })}
+                        onChange={(e) => setPlaneData({ ...planeData, total_seats: e.target.value })}
                         fullWidth
+                        type="number"
                         id="outlined-basic"
-                        label="Airline Code"
+                        label="Total Seats"
                         variant="outlined"
                     />
                     <Autocomplete
                         sx={{ mt: 2 }}
                         id="country-customized-option-demo"
-                        options={countriesList}
-                        getOptionLabel={(option) =>
-                            `${option.label}`
-                        }
-                        onChange={(e, newValue) => setAirlineData({ ...airlineData, country: newValue.label })}
-                        renderInput={(params) => <TextField {...params} label="Country" />}
+                        options={airlinesData && airlinesData.map((x) => x.name)}
+                        onChange={(e, newValue) => {
+                            const { id } = airlinesData.find((x) => x.name === newValue);
+                            setPlaneData({ ...planeData, airline_id: id })
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Airline" />}
                     />
+
                 </DialogContent>
                 <Box className="flex justify-center items-center mb-4">
                     <Button variant="contained" color="secondary" sx={{ borderRadius: 10 }} onClick={handleClose}>Cancel</Button>
-                    <Button variant="contained" color="success" sx={{ ml: 1, borderRadius: 10 }} onClick={addAirline} autoFocus>
+                    <Button variant="contained" color="success" sx={{ ml: 1, borderRadius: 10 }} onClick={addPlane} autoFocus>
                         Add
                     </Button>
                 </Box>
@@ -261,8 +267,10 @@ export default function AllAirlines(props) {
             <UpdateDialog data={updateData} open={openUpdate}
                 handleUpdateDialog={() => {
                     setOpenUpdate(!openUpdate);
-                    getAirlines();
-                }} />
+                    getPlanes();
+                }}
+                airlines={airlinesData}
+            />
         </>
     );
 }
