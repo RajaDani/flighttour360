@@ -116,6 +116,16 @@ export default function UpdateDialog({ data, handleUpdateDialog, open, planes })
                 />
                 <TextField
                     sx={{ mt: 2 }}
+                    value={flightData?.ticket_price}
+                    onChange={(e) => setFlightData({ ...flightData, ticket_price: e.target.value })}
+                    fullWidth
+                    type="number"
+                    id="outlined-basic"
+                    label="Ticket Price"
+                    variant="outlined"
+                />
+                <TextField
+                    sx={{ mt: 2 }}
                     value={flightData?.total_seats}
                     onChange={(e) => setFlightData({ ...flightData, total_seats: e.target.value })}
                     fullWidth

@@ -34,7 +34,6 @@ export default function AllFlights(props) {
 
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
-    const [searchText, setSearchText] = useState("");
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [open, setOpen] = React.useState(false);
@@ -43,7 +42,8 @@ export default function AllFlights(props) {
         plane_id: "",
         departure_time: "",
         arrival_time: "",
-        total_seats: true
+        total_seats: true,
+        ticket_price: 0
     });
     const [updateData, setUpdateData] = useState();
     const [planesData, setPlanesData] = useState();
@@ -166,6 +166,7 @@ export default function AllFlights(props) {
                                 <TableCell className="bg-ar text-white">Departure Time</TableCell>
                                 <TableCell className="bg-ar text-white">Arrival Time</TableCell>
                                 <TableCell className="bg-ar text-white">Total Seats</TableCell>
+                                <TableCell className="bg-ar text-white">Ticket Price</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -192,6 +193,7 @@ export default function AllFlights(props) {
                                             <TableCell>{handleDateTime(x.departure_time)}</TableCell>
                                             <TableCell>{handleDateTime(x.arrival_time)}</TableCell>
                                             <TableCell>{x.total_seats}</TableCell>
+                                            <TableCell>{x.ticket_price}</TableCell>
                                         </TableRow>
                                     ))}
                         </TableBody>
@@ -244,6 +246,15 @@ export default function AllFlights(props) {
                         type="datetime-local"
                         id="outlined-basic"
                         label="Arrival datetime"
+                        variant="outlined"
+                    />
+                    <TextField
+                        sx={{ mt: 2 }}
+                        onChange={(e) => setFlightData({ ...flightData, ticket_price: e.target.value })}
+                        fullWidth
+                        type="number"
+                        id="outlined-basic"
+                        label="Ticket Price"
                         variant="outlined"
                     />
                     <TextField

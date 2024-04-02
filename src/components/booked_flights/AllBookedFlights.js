@@ -26,18 +26,9 @@ export default function AllBookedFlights(props) {
     const [searchText, setSearchText] = useState("");
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const [open, setOpen] = React.useState(false);
-    const [openUpdate, setOpenUpdate] = React.useState(false);
-    const [bookedflightData, setBookedFlightData] = useState({
-        name: "",
-        code: "",
-        country: "",
-        status: true
-    });
-    const [updateData, setUpdateData] = useState();
 
     async function getBookedFlights() {
-        const response = await fetch(`${baseurl}/bookedflights`);
+        const response = await fetch(`${baseurl}/booked/flights`);
         const flights = await response.json();
         setData(flights.data);
         setFilteredData(flights.data);
@@ -47,13 +38,6 @@ export default function AllBookedFlights(props) {
         getBookedFlights();
     }, [])
 
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -65,9 +49,17 @@ export default function AllBookedFlights(props) {
     };
 
     useEffect(() => {
-        const filter = data.filter((x) => x.name.toLowerCase().includes(searchText.toLocaleLowerCase()));
+        const filter = data.filter((x) => x.customer.toLowerCase().includes(searchText.toLocaleLowerCase()));
         setFilteredData(filter);
     }, [searchText])
+
+    function handleDateTime(val) {
+        var datetime = new Date(val);
+        datetime.setHours(datetime.getHours() + 5);
+        var formattedDatetime = datetime.toISOString().slice(0, 16).replace("T", " ");
+
+        return formattedDatetime;
+    }
 
     return (
         <>
@@ -89,7 +81,7 @@ export default function AllBookedFlights(props) {
                             <SearchIcon className="ml-4" />
 
                             <Input
-                                placeholder="Search bookedflight by name"
+                                placeholder="Search by user name"
                                 className="flex flex-1 mx-8"
                                 disableUnderline
                                 fullWidth
@@ -117,10 +109,13 @@ export default function AllBookedFlights(props) {
                             }
                         }}>
                             <TableRow>
-                                <TableCell className="bg-ar text-white">BookedFlight Name</TableCell>
-                                <TableCell className="bg-ar text-white">BookedFlight Code</TableCell>
-                                <TableCell className="bg-ar text-white">Country</TableCell>
-                                <TableCell className="bg-ar text-white">Status</TableCell>
+                                <TableCell className="bg-ar text-white">Plane</TableCell>
+                                <TableCell className="bg-ar text-white">Airline</TableCell>
+                                <TableCell className="bg-ar text-white">Customer</TableCell>
+                                <TableCell className="bg-ar text-white">Departure Datetime</TableCell>
+                                <TableCell className="bg-ar text-white">Arrival Datetime</TableCell>
+                                <TableCell className="bg-ar text-white">Seats Booked</TableCell>
+                                <TableCell className="bg-ar text-white">Total Amount</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -135,17 +130,16 @@ export default function AllBookedFlights(props) {
                                                 cursor: "pointer",
                                                 height: 30,
                                             }}
-                                            onClick={() => {
-                                                setOpenUpdate(true);
-                                                setUpdateData(x)
-                                            }}
                                         >
                                             <TableCell component="th" scope="row">
-                                                {x.name}
+                                                {x.plane}
                                             </TableCell>
-                                            <TableCell>{x.code}</TableCell>
-                                            <TableCell>{x.country}</TableCell>
-                                            <TableCell>{<Chip color={x?.status ? "success" : "warning"} label={x?.status ? "Active" : "In-active"} />}</TableCell>
+                                            <TableCell>{x.airline}</TableCell>
+                                            <TableCell>{x.customer}</TableCell>
+                                            <TableCell>{handleDateTime(x.departure_time)}</TableCell>
+                                            <TableCell>{handleDateTime(x.arrival_time)}</TableCell>
+                                            <TableCell>{x.seats_booked}</TableCell>
+                                            <TableCell>{x.total_amount}</TableCell>
                                         </TableRow>
                                     ))}
                         </TableBody>
