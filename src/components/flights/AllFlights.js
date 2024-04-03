@@ -42,7 +42,7 @@ export default function AllFlights(props) {
         plane_id: "",
         departure_time: "",
         arrival_time: "",
-        total_seats: true,
+        total_seats: 1,
         ticket_price: 0
     });
     const [updateData, setUpdateData] = useState();
@@ -110,11 +110,14 @@ export default function AllFlights(props) {
     };
 
     function handleDateTime(val) {
-        var datetime = new Date(val);
-        datetime.setHours(datetime.getHours() + 5);
-        var formattedDatetime = datetime.toISOString().slice(0, 16).replace("T", " ");
+        if (val) {
+            var datetime = new Date(val);
+            datetime.setHours(datetime.getHours() + 5);
+            var formattedDatetime = datetime.toISOString().slice(0, 16).replace("T", " ");
 
-        return formattedDatetime;
+            return formattedDatetime;
+        }
+        return "";
     }
 
     return (
@@ -236,6 +239,9 @@ export default function AllFlights(props) {
                         fullWidth
                         type="datetime-local"
                         id="outlined-basic"
+                        InputLabelProps={{
+                            shrink: true
+                        }}
                         label="Departure datetime"
                         variant="outlined"
                     />
@@ -244,6 +250,9 @@ export default function AllFlights(props) {
                         onChange={(e) => setFlightData({ ...flightData, arrival_time: e.target.value })}
                         fullWidth
                         type="datetime-local"
+                        InputLabelProps={{
+                            shrink: true
+                        }}
                         id="outlined-basic"
                         label="Arrival datetime"
                         variant="outlined"
@@ -269,7 +278,9 @@ export default function AllFlights(props) {
                 </DialogContent>
                 <Box className="flex justify-center items-center mb-4">
                     <Button variant="contained" color="secondary" sx={{ borderRadius: 10 }} onClick={handleClose}>Cancel</Button>
-                    <Button variant="contained" color="success" sx={{ ml: 1, borderRadius: 10 }} onClick={addFlight} autoFocus>
+                    <Button
+                        disabled={!flightData.plane_id || !flightData.departure_time || !flightData.arrival_time || !flightData.total_seats || !flightData.ticket_price}
+                        variant="contained" color="success" sx={{ ml: 1, borderRadius: 10 }} onClick={addFlight} autoFocus>
                         Add
                     </Button>
                 </Box>

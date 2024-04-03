@@ -235,7 +235,7 @@ export default function AllAirports(props) {
                         onChange={(e) => setAirportData({ ...airportData, name: e.target.value })}
                         fullWidth
                         id="outlined-basic"
-                        label="Airline Name"
+                        label="Airport Name"
                         variant="outlined"
                     />
                     <TextField
@@ -243,7 +243,7 @@ export default function AllAirports(props) {
                         onChange={(e) => setAirportData({ ...airportData, code: e.target.value })}
                         fullWidth
                         id="outlined-basic"
-                        label="Airline Code"
+                        label="Airport Code"
                         variant="outlined"
                     />
                     <Autocomplete
@@ -286,7 +286,9 @@ export default function AllAirports(props) {
                 </DialogContent>
                 <Box className="flex justify-center items-center mb-4">
                     <Button variant="contained" color="secondary" sx={{ borderRadius: 10 }} onClick={handleClose}>Cancel</Button>
-                    <Button variant="contained" color="success" sx={{ ml: 1, borderRadius: 10 }} onClick={addAirport} autoFocus>
+                    <Button
+                        disabled={!airportData.name || !airportData.code || !airportData.country || !airportData.address || !airportData.phone || !airportData.city}
+                        variant="contained" color="success" sx={{ ml: 1, borderRadius: 10 }} onClick={addAirport} autoFocus>
                         Add
                     </Button>
                 </Box>

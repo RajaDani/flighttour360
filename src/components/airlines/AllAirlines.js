@@ -252,7 +252,9 @@ export default function AllAirlines(props) {
                 </DialogContent>
                 <Box className="flex justify-center items-center mb-4">
                     <Button variant="contained" color="secondary" sx={{ borderRadius: 10 }} onClick={handleClose}>Cancel</Button>
-                    <Button variant="contained" color="success" sx={{ ml: 1, borderRadius: 10 }} onClick={addAirline} autoFocus>
+                    <Button
+                        disabled={!airlineData.name || !airlineData.code || !airlineData.country}
+                        variant="contained" color="success" sx={{ ml: 1, borderRadius: 10 }} onClick={addAirline} autoFocus>
                         Add
                     </Button>
                 </Box>

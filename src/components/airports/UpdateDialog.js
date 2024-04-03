@@ -86,7 +86,7 @@ export default function UpdateDialog({ data, handleUpdateDialog, open }) {
                     onChange={(e) => setAirportData({ ...airportData, name: e.target.value })}
                     fullWidth
                     id="outlined-basic"
-                    label="Airline Name"
+                    label="Airport Name"
                     variant="outlined" />
 
                 <TextField
@@ -95,7 +95,7 @@ export default function UpdateDialog({ data, handleUpdateDialog, open }) {
                     onChange={(e) => setAirportData({ ...airportData, code: e.target.value })}
                     fullWidth
                     id="outlined-basic"
-                    label="Airline Code"
+                    label="Airport Code"
                     variant="outlined"
                 />
 
