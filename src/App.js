@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import Login from './components/auth/Login';
 import Planes from './components/planes';
 import BookedFlights from './components/booked_flights';
+import Review from './components/reviews/Review';
 
 function App() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ function App() {
           <Route path="/airports" element={<Airports />} />
           <Route path="/planes" element={<Planes />} />
           <Route path="/booked-flights" element={<BookedFlights />} />
+          <Route path="/reviews" element={<Review />} />
           <Route path="/add-admin" element={<AddAdmin />} />
           <Route path="/login" element={<Login />} />
         </Routes>
