@@ -13,13 +13,17 @@ import {
 import { baseurl } from '../shared/baseUrl';
 import { countriesList } from '../shared/countryList';
 
-export default function UpdateDialog({ data, handleUpdateDialog, open, planes }) {
+export default function UpdateDialog({ data, handleUpdateDialog, open, planes,airports }) {
     const [flightData, setFlightData] = useState();
     const [planeName, setPlaneName] = useState("");
+    const [daName, setDAName] = useState("");
+    const [aaName, setAAName] = useState("");
 
     useEffect(() => {
         setFlightData(data);
         setPlaneName(data?.name);
+        setDAName(data?.departure_airport);
+        setAAName(data?.arrival_airport);
     }, [data])
 
     async function updateFlight() {
@@ -94,6 +98,29 @@ export default function UpdateDialog({ data, handleUpdateDialog, open, planes })
                     }}
                     renderInput={(params) => <TextField {...params} label="Plane" />}
                 />
+                <Autocomplete
+                        sx={{ mt: 2 }}
+                        value={daName}
+                        id="country-customized-option-demo"
+                        options={airports && airports.map((x) => x.name)}
+                        onChange={(e, newValue) => {
+                            const { name } = airports.find((x) => x.name === newValue);
+                            setFlightData({ ...flightData, departure_airport: name })
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Departure Airport" />}
+                    />
+
+<Autocomplete
+                        sx={{ mt: 2 }}
+                        value={aaName}
+                        id="country-customized-option-demo"
+                        options={airports && airports.map((x) => x.name)}
+                        onChange={(e, newValue) => {
+                            const { name } = planes.find((x) => x.name === newValue);
+                            setFlightData({ ...flightData, arrival_airport: name })
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Arrival Airport" />}
+                    />
                 <TextField
                     sx={{ mt: 2 }}
                     value={flightData?.departure_time}

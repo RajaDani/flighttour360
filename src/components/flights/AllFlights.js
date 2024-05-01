@@ -43,10 +43,13 @@ export default function AllFlights(props) {
         departure_time: "",
         arrival_time: "",
         total_seats: 1,
-        ticket_price: 0
+        ticket_price: 0,
+        departure_airport : "",
+        arrival_airport: ""
     });
     const [updateData, setUpdateData] = useState();
     const [planesData, setPlanesData] = useState();
+    const [airportsData, setAirportsData] = useState();
 
     async function getFlights() {
         const response = await fetch(`${baseurl}/flights`);
@@ -59,6 +62,12 @@ export default function AllFlights(props) {
         const response = await fetch(`${baseurl}/planes`);
         const planes = await response.json();
         setPlanesData(planes.data);
+    }
+
+    async function getAirports() {
+        const response = await fetch(`${baseurl}/airports`);
+        const airports = await response.json();
+        setAirportsData(airports.data);
     }
 
     async function addFlight() {
@@ -90,6 +99,7 @@ export default function AllFlights(props) {
     useEffect(() => {
         getFlights();
         getPlanes();
+        getAirports();
     }, [])
 
     const handleClickOpen = () => {
@@ -166,6 +176,9 @@ export default function AllFlights(props) {
                             <TableRow>
                                 <TableCell className="bg-ar text-white">Plane</TableCell>
                                 <TableCell className="bg-ar text-white">Airline</TableCell>
+                                <TableCell className="bg-ar text-white">Departure Airport</TableCell>
+                                <TableCell className="bg-ar text-white">Destination Airport</TableCell>
+                                <TableCell className="bg-ar text-white">Airline</TableCell>
                                 <TableCell className="bg-ar text-white">Departure Time</TableCell>
                                 <TableCell className="bg-ar text-white">Arrival Time</TableCell>
                                 <TableCell className="bg-ar text-white">Total Seats</TableCell>
@@ -192,6 +205,9 @@ export default function AllFlights(props) {
                                             <TableCell component="th" scope="row">
                                                 {x.name}
                                             </TableCell>
+                                            <TableCell>{x.airline}</TableCell>
+                                            <TableCell>{x.departure_airport}</TableCell>
+                                            <TableCell>{x.arrival_airport}</TableCell>
                                             <TableCell>{x.airline}</TableCell>
                                             <TableCell>{handleDateTime(x.departure_time)}</TableCell>
                                             <TableCell>{handleDateTime(x.arrival_time)}</TableCell>
@@ -233,6 +249,29 @@ export default function AllFlights(props) {
                         }}
                         renderInput={(params) => <TextField {...params} label="Plane" />}
                     />
+
+<Autocomplete
+                        sx={{ mt: 2 }}
+                        id="country-customized-option-demo"
+                        options={airportsData && airportsData.map((x) => x.name)}
+                        onChange={(e, newValue) => {
+                            const { name } = airportsData.find((x) => x.name === newValue);
+                            setFlightData({ ...flightData, departure_airport: name })
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Departure Airport" />}
+                    />
+
+<Autocomplete
+                        sx={{ mt: 2 }}
+                        id="country-customized-option-demo"
+                        options={airportsData && airportsData.map((x) => x.name)}
+                        onChange={(e, newValue) => {
+                            const { name } = airportsData.find((x) => x.name === newValue);
+                            setFlightData({ ...flightData, arrival_airport: name })
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Arrival Airport" />}
+                    />
+
                     <TextField
                         sx={{ mt: 2 }}
                         onChange={(e) => setFlightData({ ...flightData, departure_time: e.target.value })}
@@ -292,6 +331,7 @@ export default function AllFlights(props) {
                     getFlights();
                 }}
                 planes={planesData}
+                airports = {airportsData}
             />
         </>
     );
