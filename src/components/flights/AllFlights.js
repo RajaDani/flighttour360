@@ -129,7 +129,15 @@ export default function AllFlights(props) {
         }
         return "";
     }
-
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
     return (
         <>
             <Box className="mt-8 pl-5 pr-5 mb-6">
@@ -281,6 +289,9 @@ export default function AllFlights(props) {
                         InputLabelProps={{
                             shrink: true
                         }}
+                         inputProps={{
+                                     min: getCurrentDateTime()  // Restrict previous dates
+                                }}
                         label="Departure datetime"
                         variant="outlined"
                     />
@@ -292,6 +303,9 @@ export default function AllFlights(props) {
                         InputLabelProps={{
                             shrink: true
                         }}
+                         inputProps={{
+                                     min: getCurrentDateTime()  // Restrict previous dates
+                                }}
                         id="outlined-basic"
                         label="Arrival datetime"
                         variant="outlined"
