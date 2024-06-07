@@ -14,18 +14,23 @@ import {
     TableRow,
     Paper,
     TablePagination,
+    Button,
+    TableSortLabel,
 } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import { baseurl } from "../shared/baseUrl";
 import Chip from '@mui/material/Chip';
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 export default function AllBookedFlights(props) {
-
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [searchText, setSearchText] = useState("");
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [order, setOrder] = useState('asc');
+    const [orderBy, setOrderBy] = useState('');
 
     async function getBookedFlights() {
         const response = await fetch(`${baseurl}/booked/flights`);
@@ -36,8 +41,13 @@ export default function AllBookedFlights(props) {
 
     useEffect(() => {
         getBookedFlights();
-    }, [])
+    }, []);
 
+    const handleRequestSort = (property) => {
+        const isAsc = orderBy === property && order === 'asc';
+        setOrder(isAsc ? 'desc' : 'asc');
+        setOrderBy(property);
+    };
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -49,17 +59,86 @@ export default function AllBookedFlights(props) {
     };
 
     useEffect(() => {
-        const filter = data.filter((x) => x.customer.toLowerCase().includes(searchText.toLocaleLowerCase()));
+        const filter = data.filter((x) => x.customer.toLowerCase().includes(searchText.toLowerCase()));
         setFilteredData(filter);
-    }, [searchText])
+    }, [searchText, data]);
 
-    function handleDateTime(val) {
+    const handleDateTime = (val) => {
         var datetime = new Date(val);
         datetime.setHours(datetime.getHours() + 5);
         var formattedDatetime = datetime.toISOString().slice(0, 16).replace("T", " ");
-
         return formattedDatetime;
-    }
+    };
+
+    const saveExcel = async (type, data) => {
+        if (data && type) {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet("Booked Flights");
+
+            const headers = [
+                "#",
+                "Plane",
+                "Airline",
+                "Customer",
+                "Departure Datetime",
+                "Arrival Datetime",
+                "Seats Booked",
+                "Total Amount",
+            ];
+            worksheet.addRow(headers);
+
+            // Add data rows
+            data.forEach((x, index) => {
+                const rowData = [
+                    index + 1,
+                    x.plane,
+                    x.airline,
+                    x.customer,
+                    handleDateTime(x.departure_time),
+                    handleDateTime(x.arrival_time),
+                    x.seats_booked,
+                    x.total_amount,
+                ];
+                worksheet.addRow(rowData);
+            });
+
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+
+            // Use FileSaver to trigger the file download
+            saveAs(blob, `Booked Flights.${type}`);
+        }
+    };
+
+    const stableSort = (array, comparator) => {
+        const stabilizedThis = array.map((el, index) => [el, index]);
+        stabilizedThis.sort((a, b) => {
+            const order = comparator(a[0], b[0]);
+            if (order !== 0) return order;
+            return a[1] - b[1];
+        });
+        return stabilizedThis.map((el) => el[0]);
+    };
+
+    const getComparator = (order, orderBy) => {
+        return order === 'desc'
+            ? (a, b) => descendingComparator(a, b, orderBy)
+            : (a, b) => -descendingComparator(a, b, orderBy);
+    };
+
+    const descendingComparator = (a, b, orderBy) => {
+        if (b[orderBy] < a[orderBy]) {
+            return -1;
+        }
+        if (b[orderBy] > a[orderBy]) {
+            return 1;
+        }
+        return 0;
+    };
+
+    const sortedData = stableSort(filteredData, getComparator(order, orderBy));
 
     return (
         <>
@@ -93,7 +172,21 @@ export default function AllBookedFlights(props) {
                             />
                         </Paper>
                     </Grid>
-
+                    <Grid item md={2} xs={3}>
+                        <Button
+                            sx={{
+                                float: "right",
+                                color: "white",
+                                backgroundColor: "#4070bd !important",
+                                borderRadius: 5,
+                                p: 1
+                            }}
+                            onClick={() => saveExcel('xls', filteredData)}
+                            className="p-3 w-28 sm:w-24 md:w-40 2xl:w-48 float-right mr-6 bg-gray-500 text-white text-16 font-bold rounded-full"
+                        >
+                            Export
+                        </Button>
+                    </Grid>
                 </Grid>
 
                 <TableContainer
@@ -109,18 +202,25 @@ export default function AllBookedFlights(props) {
                             }
                         }}>
                             <TableRow>
-                                <TableCell className="bg-ar text-white">Plane</TableCell>
-                                <TableCell className="bg-ar text-white">Airline</TableCell>
-                                <TableCell className="bg-ar text-white">Customer</TableCell>
-                                <TableCell className="bg-ar text-white">Departure Datetime</TableCell>
-                                <TableCell className="bg-ar text-white">Arrival Datetime</TableCell>
-                                <TableCell className="bg-ar text-white">Seats Booked</TableCell>
-                                <TableCell className="bg-ar text-white">Total Amount</TableCell>
+                                {['plane', 'airline', 'customer', 'departure_time', 'arrival_time', 'seats_booked', 'total_amount'].map((headCell) => (
+                                    <TableCell
+                                        key={headCell}
+                                        sortDirection={orderBy === headCell ? order : false}
+                                    >
+                                        <TableSortLabel
+                                            active={orderBy === headCell}
+                                            direction={orderBy === headCell ? order : 'asc'}
+                                            onClick={() => handleRequestSort(headCell)}
+                                        >
+                                            {headCell.replace('_', ' ').toUpperCase()}
+                                        </TableSortLabel>
+                                    </TableCell>
+                                ))}
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {filteredData &&
-                                filteredData
+                            {sortedData &&
+                                sortedData
                                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                     .map((x) => (
                                         <TableRow

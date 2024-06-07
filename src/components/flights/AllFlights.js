@@ -258,7 +258,7 @@ export default function AllFlights(props) {
                         renderInput={(params) => <TextField {...params} label="Plane" />}
                     />
 
-<Autocomplete
+                    <Autocomplete
                         sx={{ mt: 2 }}
                         id="country-customized-option-demo"
                         options={airportsData && airportsData.map((x) => x.name)}
@@ -293,7 +293,7 @@ export default function AllFlights(props) {
                                      min: getCurrentDateTime()  // Restrict previous dates
                                 }}
                         label="Departure datetime"
-                        variant="outlined"
+                        variant="outline"
                     />
                     <TextField
                         sx={{ mt: 2 }}
