@@ -16,6 +16,8 @@ export const navList = [
     { name: "Aeroplanes", link: "/planes", icon: <ConnectingAirportsIcon /> },
     { name: "Booked Flights", link: "/booked-flights", icon: <BookmarksIcon /> },
     { name: "Reviews", link: "/reviews", icon: <ReviewsIcon /> },
+    { name: "Chat", link: "/chat", icon: <ReviewsIcon /> },
+
     { name: "Add Admin", link: "/add-admin", icon: <SupervisorAccountIcon /> },
     // {name:"Signin",link:"/dashboard",icon:"dashboard"},
     // {name:"Dashboard",link:"/dashboard",icon:"dashboard"},

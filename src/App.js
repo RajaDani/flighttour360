@@ -12,6 +12,7 @@ import Login from './components/auth/Login';
 import Planes from './components/planes';
 import BookedFlights from './components/booked_flights';
 import Review from './components/reviews/Review';
+import ChatApp from './components/chat';
 
 function App() {
   const navigate = useNavigate();
@@ -36,6 +37,9 @@ function App() {
           <Route path="/planes" element={<Planes />} />
           <Route path="/booked-flights" element={<BookedFlights />} />
           <Route path="/reviews" element={<Review />} />
+          <Route path="/chat" element={<ChatApp />} />
+
+
           <Route path="/add-admin" element={<AddAdmin />} />
           <Route path="/login" element={<Login />} />
         </Routes>

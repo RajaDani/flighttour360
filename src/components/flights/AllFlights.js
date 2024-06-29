@@ -279,23 +279,22 @@ export default function AllFlights(props) {
                         }}
                         renderInput={(params) => <TextField {...params} label="Arrival Airport" />}
                     />
-
-                    <TextField
-                        sx={{ mt: 2 }}
-                        onChange={(e) => setFlightData({ ...flightData, departure_time: e.target.value })}
-                        fullWidth
-                        type="datetime-local"
-                        id="outlined-basic"
-                        InputLabelProps={{
-                            shrink: true
-                        }}
-                         inputProps={{
-                                     min: getCurrentDateTime()  // Restrict previous dates
-                                }}
-                        label="Departure datetime"
-                        variant="outline"
-                    />
-                    <TextField
+<TextField
+    sx={{ mt: 2 }}
+    onChange={(e) => setFlightData({ ...flightData, departure_time: e.target.value })}
+    fullWidth
+    type="datetime-local"
+    id="outlined-basic"
+    InputLabelProps={{
+        shrink: true
+    }}
+    inputProps={{
+        min: getCurrentDateTime()  // Restrict previous dates
+    }}
+    label="Departure datetime"
+    variant="outlined"
+/>
+                 <TextField
                         sx={{ mt: 2 }}
                         onChange={(e) => setFlightData({ ...flightData, arrival_time: e.target.value })}
                         fullWidth
@@ -327,7 +326,7 @@ export default function AllFlights(props) {
                         id="outlined-basic"
                         label="Total Seats"
                         variant="outlined"
-                    />
+                    /> 
                 </DialogContent>
                 <Box className="flex justify-center items-center mb-4">
                     <Button variant="contained" color="secondary" sx={{ borderRadius: 10 }} onClick={handleClose}>Cancel</Button>
