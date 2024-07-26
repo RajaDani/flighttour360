@@ -11,7 +11,7 @@ const [socket, setSocket] = useState(null);
   const [userChat,setUserChat]=useState([])
   const [selectedUserId, setSelectedUserId] = useState(null); // Assuming you track the selected user
   useEffect(() => {
-    const newSocket = io('http://localhost:9000');
+    const newSocket = io(baseurl);
 
     newSocket.on('connect', () => {
       console.log('Connected to server with id:', newSocket.id);
