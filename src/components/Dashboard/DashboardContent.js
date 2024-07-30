@@ -37,7 +37,7 @@ export default function DashboardContent() {
               <Typography className='font-bold mt-2' sx={{ fontSize: 20 }}>
                 {data[0]?.total_planes}
               </Typography>
-            </Box>otal Earning
+            </Box>
           </Card>
         </Grid>
         <Grid item sm={6} md={3}>
